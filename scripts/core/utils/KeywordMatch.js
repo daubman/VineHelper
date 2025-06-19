@@ -1,3 +1,5 @@
+import { hasEtvCondition, areEtvConditionsSatisfied } from "./KeywordUtils.js";
+
 // Pre-compiled regex cache for keywords
 // Using WeakMap to allow garbage collection when keywords array is replaced
 const compiledKeywordCache = new WeakMap();
@@ -37,10 +39,17 @@ function compileKeyword(word) {
 				withoutRegex = new RegExp(withoutPattern, "iu");
 			}
 
-			return {
+			const compiled = {
 				regex: containsRegex,
 				withoutRegex: withoutRegex,
 			};
+
+			// Add ETV condition flag
+			if (hasEtvCondition(word)) {
+				compiled.hasEtvCondition = true;
+			}
+
+			return compiled;
 		}
 	} catch (error) {
 		if (error instanceof SyntaxError) {
@@ -134,12 +143,8 @@ function testKeywordMatch(word, compiled, title, etv_min, etv_max) {
 		return true;
 	}
 
-	// ETV filtering defined, need to satisfy it
-	const etvMinOk = word.etv_min === "" || (etv_max !== null && etv_max !== "" && etv_max >= parseFloat(word.etv_min));
-
-	const etvMaxOk = word.etv_max === "" || (etv_min !== null && etv_min !== "" && etv_min <= parseFloat(word.etv_max));
-
-	return etvMinOk && etvMaxOk;
+	// Use shared utility for ETV condition checking
+	return areEtvConditionsSatisfied(word, etv_min, etv_max);
 }
 
 function keywordMatchReturnFullObject(keywords, title, etv_min = null, etv_max = null) {
@@ -187,4 +192,33 @@ function keywordMatch(keywords, title, etv_min = null, etv_max = null) {
 	return found === undefined ? false : found;
 }
 
-export { keywordMatch, keywordMatchReturnFullObject, precompileKeywords };
+/**
+ * Check if any keywords have ETV conditions
+ * @param {Array} keywords - Array of keyword objects
+ * @returns {boolean} - True if any keyword has ETV conditions
+ */
+function hasAnyEtvConditions(keywords) {
+	if (!keywords || keywords.length === 0) {
+		return false;
+	}
+
+	// Get cache for this keywords array
+	let cache = compiledKeywordCache.get(keywords);
+
+	// If not cached, compile first
+	if (!cache) {
+		precompileKeywords(keywords);
+		cache = compiledKeywordCache.get(keywords);
+	}
+
+	// Check if any compiled keyword has ETV condition flag
+	for (const [index, compiled] of cache) {
+		if (compiled && compiled.hasEtvCondition) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+export { keywordMatch, keywordMatchReturnFullObject, precompileKeywords, hasAnyEtvConditions };

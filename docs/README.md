@@ -57,6 +57,34 @@ Implementation details for keyword optimization system:
 - Architecture decisions and rationale
 - Testing strategies and code examples
 
+### [KEYWORD_OPTIMIZATION_AND_DI.md](./KEYWORD_OPTIMIZATION_AND_DI.md)
+
+Comprehensive guide to keyword optimization and DI implementation:
+
+- Keyword regex pre-compilation and caching
+- Dependency Injection architecture for cross-context sharing
+- Bug fixes for notification count and ETV handling
+- Performance improvements and code quality enhancements
+- Migration guide and architecture diagrams
+
+### [DI_KEYWORD_COMPILATION_MIGRATION.md](./DI_KEYWORD_COMPILATION_MIGRATION.md)
+
+Migration guide for DI-based keyword compilation:
+
+- Architecture overview with cross-context sharing
+- Step-by-step migration instructions
+- Service descriptions and API documentation
+- Testing strategies and examples
+
+### [DI_KEYWORD_COMPILATION_SUMMARY.md](./DI_KEYWORD_COMPILATION_SUMMARY.md)
+
+Summary of DI keyword compilation implementation:
+
+- Overview of implemented services
+- KeywordCompilationService details
+- RuntimeAdapter and infrastructure updates
+- Documentation and test coverage
+
 ## Related Documentation
 
 - **Infrastructure Components**: See [`../scripts/infrastructure/README.md`](../scripts/infrastructure/README.md) for detailed documentation on the DI container and storage adapters
