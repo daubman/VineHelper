@@ -183,15 +183,19 @@ Tests cover:
 ### Browser Extension Architecture
 
 ```
-┌─────────────────────┐     ┌──────────────────────┐
-│   Main Page         │     │   Service Worker     │
-│ (NotificationMonitor)│     │ (StreamProcessing)   │
-│                     │     │                      │
-│ - Own JS context    │     │ - Isolated context   │
-│ - Own memory        │     │ - Own memory         │
-│ - Compiles keywords │     │ - Compiles keywords  │
-└─────────────────────┘     └──────────────────────┘
+┌─────────────────────────────┐     ┌──────────────────────┐
+│       Main Page             │     │   Service Worker     │
+│ (NotificationMonitor)       │     │                      │
+│ (StreamProcessing)          │     │                      │
+│                             │     │                      │
+│ - Own JS context            │     │ - Isolated context   │
+│ - Own memory                │     │ - Own memory         │
+│ - Compiles keywords         │     │ - May compile keywords│
+│ - Handles stream processing │     │                      │
+└─────────────────────────────┘     └──────────────────────┘
 ```
+
+Note: In the feature/SlaveMasterMonitor branch, stream processing has been moved to the main page context.
 
 Each context must independently compile keywords because they:
 
