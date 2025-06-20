@@ -121,14 +121,26 @@ if (this._env.isSafari()) {
 
 **Problem**: Debug checkboxes for "Debug Tab Title Updates" and "Debug Placeholder Calculations" were not persisting when leaving and returning to settings.
 
-**Root Cause**: Default values for these settings were not defined in SettingsMgrDI.js.
+**Root Cause**:
 
-**Solution**: Added default values in `SettingsMgrDI.js`:
+1. Default values for these settings were not defined in SettingsMgrDI.js
+2. The settings were not being managed in the settings loader
+
+**Solution**:
+
+1. Added default values in `SettingsMgrDI.js`:
 
 ```javascript
 // In #getDefaultSettings() method, within the general section:
 debugTabTitle: false,
 debugPlaceholders: false,
+```
+
+2. Added checkbox management in `settings_loadsave.js`:
+
+```javascript
+manageCheckboxSetting("general.debugTabTitle");
+manageCheckboxSetting("general.debugPlaceholders");
 ```
 
 ### 8. Placeholders Appearing at End Instead of Beginning
