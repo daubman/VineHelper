@@ -73,12 +73,57 @@ this._updateTabTitle(newCount);
 - Added proper count updates when truncation occurs
 - Ensured VisibilityStateManager is synchronized
 
+### 5. Safari Display Style Check Bug
+
+**Problem**: In `processNotificationFiltering`, Safari was getting the entire computed style object instead of just the display property.
+
+**Solution**: Fixed to properly extract the display property:
+
+```javascript
+if (this._env.isSafari()) {
+	const computedStyle = window.getComputedStyle(node);
+	styleDisplay = computedStyle.display;
+} else {
+	styleDisplay = node.style.display;
+}
+```
+
+### 6. Count Mismatch After Filter Changes
+
+**Problem**: Tab title showing incorrect count (e.g., 50 when 51 tiles visible) after filter changes.
+
+**Solution**: Enhanced `updateVisibleCountAfterFiltering` to:
+
+- Update tab title after recounting
+- Force placeholder recalculation
+- Use requestAnimationFrame for visual stability
+
+```javascript
+#updateVisibleCountAfterFiltering() {
+    requestAnimationFrame(() => {
+        if (this._env.isSafari()) {
+            this.#invalidateComputedStyleCache();
+        }
+
+        const newCount = this._countVisibleItems();
+        this._visibilityStateManager?.setCount(newCount);
+        this._updateTabTitle(newCount);
+        this.#emitGridEvent("grid:items-filtered", { visibleCount: newCount });
+
+        if (this._noShiftGrid) {
+            this._noShiftGrid.insertPlaceholderTiles();
+        }
+    });
+}
+```
+
 ## Debug Mode
 
 Enable debug logging to troubleshoot count issues:
 
 ```javascript
-window.DEBUG_TAB_TITLE = true;
+window.DEBUG_TAB_TITLE = true; // Logs tab title updates
+window.DEBUG_PLACEHOLDERS = true; // Logs placeholder calculations
 ```
 
 This logs:
@@ -86,6 +131,41 @@ This logs:
 - All tab title updates with count values
 - VisibilityStateManager count changes with stack traces
 - Truncation start/end with item counts
+- Placeholder calculations with grid dimensions
+- Item visibility changes during filtering
+- Count comparisons between different methods
+
+### Debug Output Examples
+
+```javascript
+// Placeholder calculation
+[NoShiftGrid] Starting placeholder calculation {
+    visibleItemsCount: 51,
+    visibilityStateCount: 50,
+    allTilesCount: 51,
+    hiddenTilesCount: 0,
+    domVisibleCount: 51,
+    endPlaceholdersCount: 0,
+    gridWidth: 1360
+}
+
+// Count mismatch detection
+[MonitorCore] Final count {
+    count: 51,
+    visibilityStateCount: 50,
+    mismatch: true
+}
+
+// Visibility change
+[NotificationMonitor] Item visibility changed {
+    asin: "B0XXXXX",
+    beforeDisplay: "none",
+    afterDisplay: "flex",
+    typeZeroETV: true,
+    currentFilter: 1,
+    filterName: "Zero ETV or KW match only"
+}
+```
 
 ## Test Plan
 

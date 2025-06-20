@@ -252,8 +252,15 @@ class NotificationMonitor extends MonitorCore {
 			const newCount = this._countVisibleItems();
 			// Update the visibility state manager with new count (V3 only)
 			this._visibilityStateManager?.setCount(newCount);
+			// Update tab title
+			this._updateTabTitle(newCount);
 			// Emit event for filter change with visible count
 			this.#emitGridEvent("grid:items-filtered", { visibleCount: newCount });
+
+			// Force placeholder recalculation after filter change
+			if (this._noShiftGrid) {
+				this._noShiftGrid.insertPlaceholderTiles();
+			}
 		});
 	}
 
@@ -270,6 +277,7 @@ class NotificationMonitor extends MonitorCore {
 		const notificationTypeZeroETV = parseInt(node.dataset.typeZeroETV) === 1;
 		const notificationTypeHighlight = parseInt(node.dataset.typeHighlight) === 1;
 		const queueType = node.dataset.queue;
+		const beforeDisplay = node.style.display;
 
 		//Feed Paused
 		if (node.dataset.feedPaused == "true") {
@@ -320,10 +328,38 @@ class NotificationMonitor extends MonitorCore {
 		//Queue filter
 		let styleDisplay;
 		if (this._env.isSafari()) {
-			styleDisplay = window.getComputedStyle(node);
+			const computedStyle = window.getComputedStyle(node);
+			styleDisplay = computedStyle.display;
 		} else {
 			styleDisplay = node.style.display;
 		}
+
+		// Debug logging for visibility changes
+		if (typeof window !== "undefined" && (window.DEBUG_TAB_TITLE || window.DEBUG_PLACEHOLDERS)) {
+			const afterDisplay = node.style.display;
+			if (beforeDisplay !== afterDisplay) {
+				console.log("[NotificationMonitor] Item visibility changed", {
+					asin: node.dataset.asin,
+					beforeDisplay,
+					afterDisplay,
+					typeZeroETV: notificationTypeZeroETV,
+					typeHighlight: notificationTypeHighlight,
+					currentFilter: this._filterType,
+					filterName:
+						this._filterType === TYPE_HIGHLIGHT_OR_ZEROETV
+							? "Zero ETV or KW match only"
+							: this._filterType === TYPE_HIGHLIGHT
+								? "Highlight only"
+								: this._filterType === TYPE_ZEROETV
+									? "Zero ETV only"
+									: this._filterType === TYPE_REGULAR
+										? "Regular only"
+										: "All",
+					styleDisplay,
+				});
+			}
+		}
+
 		if (styleDisplay == "flex" || styleDisplay == "block") {
 			if (this._filterQueue == "-1") {
 				return true;
