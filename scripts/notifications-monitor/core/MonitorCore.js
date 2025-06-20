@@ -352,7 +352,9 @@ class MonitorCore {
 		);
 
 		// Debug logging
-		if (typeof window !== "undefined" && (window.DEBUG_TAB_TITLE || window.DEBUG_PLACEHOLDERS)) {
+		const debugTabTitle = this._settings.get("general.debugTabTitle");
+		const debugPlaceholders = this._settings.get("general.debugPlaceholders");
+		if (debugTabTitle || debugPlaceholders) {
 			console.log("[MonitorCore] Counting visible items", {
 				allTiles: allTiles.length,
 				placeholderTiles: placeholderTiles.length,
@@ -378,7 +380,7 @@ class MonitorCore {
 		}
 
 		// Debug logging
-		if (typeof window !== "undefined" && (window.DEBUG_TAB_TITLE || window.DEBUG_PLACEHOLDERS)) {
+		if (debugTabTitle || debugPlaceholders) {
 			console.log("[MonitorCore] Final count", {
 				count,
 				visibilityStateCount: this._visibilityStateManager?.getCount(),
@@ -418,7 +420,8 @@ class MonitorCore {
 			document.title = "VHNM (" + itemsCount + ")";
 
 			// Debug logging for truncation issues
-			if (typeof window !== "undefined" && window.DEBUG_TAB_TITLE) {
+			const debugTabTitle = this._settings.get("general.debugTabTitle");
+			if (debugTabTitle) {
 				console.log(`[TabTitle] Updated to: ${itemsCount}`, {
 					providedCount: count,
 					timestamp: new Date().toISOString(),

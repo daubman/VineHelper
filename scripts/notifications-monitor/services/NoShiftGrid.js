@@ -92,7 +92,8 @@ class NoShiftGrid {
 		}
 
 		// Debug logging
-		if (typeof window !== "undefined" && window.DEBUG_PLACEHOLDERS) {
+		const debugPlaceholders = this._monitor._settings.get("general.debugPlaceholders");
+		if (debugPlaceholders) {
 			console.log("[NoShiftGrid] Starting placeholder calculation", {
 				visibleItemsCount,
 				visibilityStateCount: this._visibilityStateManager?.getCount(),
@@ -117,7 +118,7 @@ class NoShiftGrid {
 		const numPlaceholderTiles = (tilesPerRow - (theoricalItemsCount % tilesPerRow)) % tilesPerRow;
 
 		// Debug logging
-		if (typeof window !== "undefined" && window.DEBUG_PLACEHOLDERS) {
+		if (debugPlaceholders) {
 			console.log("[NoShiftGrid] Placeholder calculation result", {
 				theoricalItemsCount,
 				tilesPerRow,

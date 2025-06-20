@@ -360,6 +360,8 @@ export class SettingsMgrDI {
 					active: true,
 					color: "#64af4b",
 				},
+				debugTabTitle: false,
+				debugPlaceholders: false,
 			},
 			metrics: {
 				minutesUsed: 0,

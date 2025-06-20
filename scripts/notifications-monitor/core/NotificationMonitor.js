@@ -335,7 +335,9 @@ class NotificationMonitor extends MonitorCore {
 		}
 
 		// Debug logging for visibility changes
-		if (typeof window !== "undefined" && (window.DEBUG_TAB_TITLE || window.DEBUG_PLACEHOLDERS)) {
+		const debugTabTitle = this._settings.get("general.debugTabTitle");
+		const debugPlaceholders = this._settings.get("general.debugPlaceholders");
+		if (debugTabTitle || debugPlaceholders) {
 			const afterDisplay = node.style.display;
 			if (beforeDisplay !== afterDisplay) {
 				console.log("[NotificationMonitor] Item visibility changed", {
@@ -571,7 +573,8 @@ class NotificationMonitor extends MonitorCore {
 					);
 
 					// Debug logging for truncation
-					if (typeof window !== "undefined" && window.DEBUG_TAB_TITLE) {
+					const debugTabTitle = this._settings.get("general.debugTabTitle");
+					if (debugTabTitle) {
 						console.log(`[Truncation] Starting truncation`, {
 							currentSize: this._itemsMgr.items.size,
 							maxLimit: max,
@@ -613,7 +616,7 @@ class NotificationMonitor extends MonitorCore {
 					});
 
 					// Debug logging for truncation completion
-					if (typeof window !== "undefined" && window.DEBUG_TAB_TITLE) {
+					if (debugTabTitle) {
 						console.log(`[Truncation] Completed truncation`, {
 							visibleItemsRemoved: visibleItemsRemovedCount,
 							newSize: this._itemsMgr.items.size,

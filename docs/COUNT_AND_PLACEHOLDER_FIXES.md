@@ -117,16 +117,75 @@ if (this._env.isSafari()) {
 }
 ```
 
+### 7. Debug Settings Not Persisting
+
+**Problem**: Debug checkboxes for "Debug Tab Title Updates" and "Debug Placeholder Calculations" were not persisting when leaving and returning to settings.
+
+**Root Cause**: Default values for these settings were not defined in SettingsMgrDI.js.
+
+**Solution**: Added default values in `SettingsMgrDI.js`:
+
+```javascript
+// In #getDefaultSettings() method, within the general section:
+debugTabTitle: false,
+debugPlaceholders: false,
+```
+
+### 8. Placeholders Appearing at End Instead of Beginning
+
+**Problem**: Placeholder tiles were appearing at the very end of the grid instead of at the beginning.
+
+**Root Cause**: In `GridEventManager.js`, the `#handleSortNeeded` method was appending placeholder tiles after items in the document fragment.
+
+**Solution**: Modified the order in `GridEventManager.js` to add placeholders first:
+
+```javascript
+// Create a DocumentFragment for better performance
+const fragment = document.createDocumentFragment();
+
+// Add placeholder tiles at the beginning
+placeholderTiles.forEach((placeholder) => {
+	if (placeholder.parentNode) {
+		placeholder.remove();
+	}
+	fragment.appendChild(placeholder);
+});
+
+// Add items to fragment in sorted order after placeholders
+validItems.forEach((item) => {
+	if (item.element.parentNode) {
+		item.element.remove();
+	}
+	fragment.appendChild(item.element);
+});
+```
+
 ## Debug Mode
 
 Enable debug logging to troubleshoot count issues:
 
-```javascript
-window.DEBUG_TAB_TITLE = true; // Logs tab title updates
-window.DEBUG_PLACEHOLDERS = true; // Logs placeholder calculations
-```
+### Using Settings (Recommended)
 
-This logs:
+1. Go to VineHelper Settings > General tab
+2. Scroll to the bottom "Debugging" section
+3. Enable the debug options:
+    - **Debug Tab Title Updates** - Logs tab title count updates
+    - **Debug Placeholder Calculations** - Logs placeholder tile calculations
+4. Save settings and reload the notification monitor
+
+### Viewing Debug Logs
+
+1. Open the notification monitor window
+2. Right-click in the window and select "Inspect"
+3. Go to the Console tab in DevTools
+4. Look for logs with these prefixes:
+    - `[MonitorCore]` - Count calculations and mismatches
+    - `[NoShiftGrid]` - Placeholder calculations
+    - `[TabTitle]` - Tab title updates
+    - `[Truncation]` - Item truncation events
+    - `[NotificationMonitor]` - Visibility changes
+
+### What Gets Logged
 
 - All tab title updates with count values
 - VisibilityStateManager count changes with stack traces
