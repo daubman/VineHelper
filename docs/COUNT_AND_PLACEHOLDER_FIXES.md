@@ -180,9 +180,20 @@ Enable debug logging to troubleshoot count issues:
 
 1. Go to VineHelper Settings > General tab
 2. Scroll to the bottom "Debugging" section
-3. Enable the debug options:
-    - **Debug Tab Title Updates** - Logs tab title count updates
-    - **Debug Placeholder Calculations** - Logs placeholder tile calculations
+3. The debugging options are organized into subsections:
+
+#### Notification Monitor
+
+- **Debug Tab Title Updates** - Logs tab title count updates
+- **Debug Placeholder Calculations** - Logs placeholder tile calculations
+
+#### Memory Analysis
+
+- **Enable Memory Debugging** - Enables memory debugging tools in the notification monitor
+    - When enabled, you can use `window.md` or `window.MEMORY_DEBUGGER` to access the MemoryDebugger
+    - Common commands: `md.takeSnapshot("name")`, `md.compareSnapshots("before", "after")`
+- **Auto Heap Snapshots** - Automatically takes heap snapshots at key moments
+
 4. Save settings and reload the notification monitor
 
 ### Viewing Debug Logs

@@ -362,6 +362,8 @@ export class SettingsMgrDI {
 				},
 				debugTabTitle: false,
 				debugPlaceholders: false,
+				debugMemory: false,
+				debugMemoryAutoSnapshot: false,
 			},
 			metrics: {
 				minutesUsed: 0,

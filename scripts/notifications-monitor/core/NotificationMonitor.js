@@ -16,7 +16,13 @@ let MemoryDebugger = null;
 
 // Create a promise that resolves when the debugger is ready
 window.MEMORY_DEBUGGER_READY = new Promise((resolve) => {
-	if (window.DEBUG_MEMORY || localStorage.getItem("vh_debug_memory") === "true") {
+	// Check multiple sources for debug memory setting
+	const debugMemoryEnabled =
+		window.DEBUG_MEMORY ||
+		localStorage.getItem("vh_debug_memory") === "true" ||
+		localStorage.getItem("settings.general.debugMemory") === "true";
+
+	if (debugMemoryEnabled) {
 		import("/scripts/notifications-monitor/debug/MemoryDebugger.js")
 			.then((module) => {
 				MemoryDebugger = module.default || module.MemoryDebugger || module;
@@ -165,6 +171,14 @@ class NotificationMonitor extends MonitorCore {
 		}
 
 		// Memory debugger is initialized in the import callback above
+		// Check settings after they're loaded to enable memory debugging
+		this._settings.waitForLoad().then(() => {
+			if (this._settings.get("general.debugMemory") && !window.MEMORY_DEBUGGER) {
+				// Trigger memory debugger loading by setting localStorage
+				localStorage.setItem("vh_debug_memory", "true");
+				console.log("Memory debugging enabled via settings. Reload the page to activate.");
+			}
+		});
 	}
 
 	/**

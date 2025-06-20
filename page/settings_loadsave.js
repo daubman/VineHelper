@@ -275,6 +275,8 @@ async function initiateSettings() {
 	manageColorPicker("general.toolbarBackgroundColor");
 	manageCheckboxSetting("general.debugTabTitle");
 	manageCheckboxSetting("general.debugPlaceholders");
+	manageCheckboxSetting("general.debugMemory");
+	manageCheckboxSetting("general.debugMemoryAutoSnapshot");
 
 	//##TAB - NOTIFICATIONS
 
