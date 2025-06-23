@@ -28,8 +28,8 @@ This document tracks planned improvements that are not yet implemented or are in
 
 **Issues Identified:**
 
-- Multi-tab coordination race conditions during master election
-- Concurrent WebSocket connection attempts
+- Enhanced master election error handling
+- Improved heartbeat mechanism for master health monitoring
 - State synchronization conflicts between tabs
 
 **Solutions:**

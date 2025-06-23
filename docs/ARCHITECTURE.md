@@ -171,7 +171,7 @@ When using VineHelper across multiple browser tabs, item counts are not synchron
 
 **Impact**: Users may see different counts in different tabs, but this does not affect the core functionality of item processing.
 
-**Future Improvement**: A future enhancement could implement count synchronization using the existing BroadcastChannel infrastructure, but this would require careful handling of race conditions and state conflicts.
+**Design Note**: The per-tab count display is intentional. Each tab maintains its own view state to support different filters and workflows across tabs. Users can hide items in one tab while keeping them visible in another, enabling more flexible item management.
 
 ### Architecture Components
 

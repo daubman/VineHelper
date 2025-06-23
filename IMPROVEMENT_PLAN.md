@@ -2,19 +2,19 @@
 
 ## Executive Summary
 
-This document consolidates all findings from the VineHelper code analysis and provides a prioritized, actionable improvement plan. Based on the analysis of 6 commits on the `fix/remaining-debug-improvements` branch and comprehensive code review, we've identified **47 total improvements** across 7 categories.
+This document consolidates all findings from the VineHelper code analysis and provides a prioritized, actionable improvement plan. Based on the analysis of 6 commits on the `fix/remaining-debug-improvements` branch and comprehensive code review, we've identified **44 total improvements** across 7 categories.
 
 ### Key Statistics
 
-- 🔴 **Critical Issues**: 12 (26%)
-- 🟡 **High Priority**: 15 (32%)
-- 🟢 **Medium Priority**: 13 (28%)
-- 🔵 **Low Priority**: 7 (14%)
+- 🔴 **Critical Issues**: 9 (20%)
+- 🟡 **High Priority**: 14 (32%)
+- 🟢 **Medium Priority**: 14 (32%)
+- 🔵 **Low Priority**: 7 (16%)
 
 ### Immediate Action Required
 
 1. Fix memory leaks causing browser crashes
-2. Resolve race conditions in multi-tab coordination
+2. Fix padding calculation issues in grid layout
 3. Address Safari/Firefox compatibility issues
 
 ### Estimated Total Effort
@@ -30,7 +30,7 @@ This document consolidates all findings from the VineHelper code analysis and pr
 ## Table of Contents
 
 1. [Memory Management](#1-memory-management)
-2. [Race Conditions & Synchronization](#2-race-conditions--synchronization)
+2. [Multi-Tab Coordination](#2-multi-tab-coordination)
 3. [Performance Optimization](#3-performance-optimization)
 4. [Browser Compatibility](#4-browser-compatibility)
 5. [Error Handling & Reliability](#5-error-handling--reliability)
@@ -126,60 +126,50 @@ This document consolidates all findings from the VineHelper code analysis and pr
 
 ---
 
-## 2. Race Conditions & Synchronization
+## 2. Multi-Tab Coordination
 
-### 🔴 RC-001: Master Election Race Condition
+### 🟢 MT-001: Per-Tab Count Display (Intentional Design)
 
-**Problem**: Multiple tabs can become master simultaneously during election
+**Note**: The per-tab count display is an intentional design decision, not a bug. Each tab maintains its own visibility state to allow users to have different views in different tabs.
+
+**Current Behavior**:
+
+- Each tab shows its own hidden/visible count
+- Counts are not synchronized across tabs by design
+- Users can hide items in one tab while keeping them visible in another
+- Supports different filters and workflows in different tabs
+
+**Debug Support**:
+
+- Added `debugCoordination` flag in debug settings
+- When enabled, logs detailed coordination events
+- Helps diagnose actual coordination issues vs intentional behavior
+
+### 🟡 MT-002: Master Election Improvements
+
+**Problem**: Master election process could be more robust
 **Solution**:
 
-- Implement proper locking mechanism using timestamp-based priority
-- Add random backoff for collision resolution
-- Use atomic operations for state updates
-  **Affected Files**:
-- `scripts/notifications-monitor/coordination/MasterSlave.js`
-  **Complexity**: Complex
-  **Dependencies**: None
-
-### 🔴 RC-002: Concurrent WebSocket Connections
-
-**Problem**: Multiple tabs attempting WebSocket connections simultaneously
-**Solution**:
-
-- Ensure only master tab creates WebSocket
-- Add connection state synchronization
-- Implement connection handoff on master change
-  **Affected Files**:
-- `scripts/notifications-monitor/stream/Websocket.js`
-- `scripts/notifications-monitor/coordination/MasterSlave.js`
-  **Complexity**: Complex
-  **Dependencies**: RC-001
-
-### 🔴 RC-003: State Synchronization Conflicts
-
-**Problem**: Item state updates can be lost or duplicated across tabs
-**Solution**:
-
-- Implement version vectors for state tracking
-- Add conflict resolution strategy
-- Use transaction-like updates
-  **Affected Files**:
-- `scripts/notifications-monitor/services/ItemsMgr.js`
-  **Complexity**: Complex
-  **Dependencies**: RC-001, RC-002
-
-### 🟡 RC-004: BroadcastChannel Message Ordering
-
-**Problem**: Messages can arrive out of order causing state inconsistencies
-**Solution**:
-
-- Add sequence numbers to messages
-- Implement message queue with ordering
-- Add acknowledgment system
+- Add better error handling for edge cases
+- Implement heartbeat mechanism for master health
+- Add recovery mechanism for orphaned slaves
   **Affected Files**:
 - `scripts/notifications-monitor/coordination/MasterSlave.js`
   **Complexity**: Medium
-  **Dependencies**: RC-001
+  **Dependencies**: None
+
+### 🟡 MT-003: BroadcastChannel Fallback
+
+**Problem**: Limited support in Safari and Firefox private browsing
+**Solution**:
+
+- Already implemented localStorage fallback
+- Add better detection and user notification
+- Optimize fallback performance
+  **Affected Files**:
+- `scripts/notifications-monitor/coordination/MasterSlave.js`
+  **Complexity**: Simple
+  **Dependencies**: None
 
 ---
 
@@ -212,7 +202,20 @@ This document consolidates all findings from the VineHelper code analysis and pr
   **Complexity**: Medium
   **Dependencies**: None
 
-### 🟡 PO-003: DOM Batch Operations
+### 🔴 PO-003: Grid Padding Calculation
+
+**Problem**: Incorrect padding calculation causing layout issues
+**Solution**:
+
+- Fix padding calculation in grid layout
+- Account for scrollbar width properly
+- Test across different screen sizes
+  **Affected Files**:
+- `scripts/notifications-monitor/services/NoShiftGrid.js`
+  **Complexity**: Simple
+  **Dependencies**: None
+
+### 🟡 PO-004: DOM Batch Operations
 
 **Problem**: Individual DOM updates causing multiple reflows
 **Solution**:
@@ -225,7 +228,7 @@ This document consolidates all findings from the VineHelper code analysis and pr
   **Complexity**: Medium
   **Dependencies**: None
 
-### 🟢 PO-004: getComputedStyle Optimization
+### 🟢 PO-005: getComputedStyle Optimization
 
 **Problem**: Safari performance issues with getComputedStyle in loops
 **Solution**:
@@ -493,18 +496,17 @@ gantt
     Streamy Cleanup            :2025-01-06, 5d
     Circular References        :2025-01-11, 7d
 
-    section Race Conditions
-    Master Election Fix        :2025-01-18, 7d
-    WebSocket Sync            :2025-01-25, 7d
-    State Conflicts           :2025-02-01, 7d
+    section Performance
+    Grid Padding Fix          :2025-01-18, 2d
+    Virtual Scrolling         :2025-01-20, 7d
 
     section Browser Support
-    Safari BroadcastChannel    :2025-02-08, 5d
-    Firefox Private Mode      :2025-02-13, 3d
+    Safari BroadcastChannel    :2025-01-27, 5d
+    Firefox Private Mode      :2025-02-01, 3d
 
     section Error Handling
-    WebSocket Errors          :2025-02-16, 5d
-    Retry Strategy           :2025-02-21, 5d
+    WebSocket Errors          :2025-02-04, 5d
+    Retry Strategy           :2025-02-09, 5d
 ```
 
 ### Phase 2: High Priority (Weeks 9-18)

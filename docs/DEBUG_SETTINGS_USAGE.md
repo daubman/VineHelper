@@ -96,6 +96,18 @@ This document provides a comprehensive overview of all debug settings in VineHel
 - **Used in**:
     - Memory debugging tools (when `debugMemory` is enabled)
 
+### 12. **Debug Coordination** (`general.debugCoordination`)
+
+- **Purpose**: Logs detailed information about multi-tab coordination events to help understand master/slave behavior
+- **Default**: `false`
+- **Features**:
+    - Logs master election events
+    - Logs BroadcastChannel messages
+    - Helps distinguish between intentional per-tab behavior and actual coordination issues
+- **Used in**:
+    - `MasterSlave.js`: Master/slave coordination events
+    - Useful for understanding that per-tab counts are intentional, not a bug
+
 ## Settings Configuration
 
 ### Default Values (SettingsMgrDI.js)
@@ -112,6 +124,7 @@ debugSettings: false,
 debugStorage: false,
 debugMemory: false,
 debugMemoryAutoSnapshot: false,
+debugCoordination: false,
 ```
 
 ### Settings Initialization (settings_loadsave.js)
@@ -128,6 +141,7 @@ manageCheckboxSetting("general.debugServercom", false);
 manageCheckboxSetting("general.debugServiceWorker", false);
 manageCheckboxSetting("general.debugSettings", false);
 manageCheckboxSetting("general.debugStorage", false);
+manageCheckboxSetting("general.debugCoordination", false);
 ```
 
 ### HTML Checkboxes (settings_general.tpl.html)

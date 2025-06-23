@@ -52,14 +52,15 @@ VineHelper enhances the Amazon Vine experience with various features including k
 
 ## Known Limitations
 
-### Multi-Tab Item Count Synchronization
+### Multi-Tab Item Count Display
 
 When using VineHelper across multiple browser tabs:
 
-- Each tab maintains its own item count
+- Each tab maintains its own item count and visibility state
 - Counts are not synchronized between tabs in real-time
-- This is by design to avoid complex state synchronization
+- This is an intentional design decision to support different filters and workflows in different tabs
+- Users can hide items in one tab while keeping them visible in another
 - The actual item processing is properly coordinated (no duplicates)
 - Refreshing a tab will update its count to the current state
 
-**Workaround:** If you need accurate counts, use a single tab or refresh the tab to get the latest count.
+**Note:** This design allows you to have different views in different tabs - for example, one tab showing all items while another tab has certain items hidden based on your preferences.
