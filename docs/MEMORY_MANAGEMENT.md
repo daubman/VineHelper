@@ -4,11 +4,80 @@ This document consolidates all memory-related documentation for the VineHelper n
 
 ## Table of Contents
 
-1. [Fixed Memory Issues](#fixed-memory-issues)
-2. [Current Best Practices](#current-best-practices)
-3. [Future Recommendations](#future-recommendations)
-4. [Memory Debugging Tools](#memory-debugging-tools)
-5. [Performance Monitoring](#performance-monitoring)
+1. [Memory Lifecycle Overview](#memory-lifecycle-overview)
+2. [Fixed Memory Issues](#fixed-memory-issues)
+3. [Current Best Practices](#current-best-practices)
+4. [Future Recommendations](#future-recommendations)
+5. [Memory Debugging Tools](#memory-debugging-tools)
+6. [Performance Monitoring](#performance-monitoring)
+
+## Memory Lifecycle Overview
+
+Understanding the memory lifecycle is crucial for preventing leaks and optimizing performance. The following diagram illustrates the three main phases of memory management in VineHelper:
+
+```mermaid
+graph TD
+    subgraph "Creation Phase"
+        CI[Component Init] --> RL[Register Listeners]
+        RL --> ST[Store References]
+    end
+
+    subgraph "Active Phase"
+        ST --> EU[Event Updates]
+        EU --> CC[Cache Check]
+        CC -->|Hit| UC[Use Cached]
+        CC -->|Miss| CR[Create/Compute]
+        CR --> SC[Store in Cache]
+    end
+
+    subgraph "Cleanup Phase"
+        UC --> CD[Component Destroy]
+        SC --> CD
+        CD --> RL2[Remove Listeners]
+        RL2 --> CT[Clear Timers]
+        CT --> NR[Null References]
+        NR --> GC[Garbage Collection]
+    end
+```
+
+### Key Principles
+
+1. **Creation Phase**: Always store references to handlers, timers, and DOM elements for later cleanup
+2. **Active Phase**: Use caching strategies (WeakMap, LRU) to prevent unbounded growth
+3. **Cleanup Phase**: Every component MUST implement a destroy() method that cleans up all resources
+
+### Visual Patterns for Memory Management
+
+#### WeakMap Usage Pattern
+
+```mermaid
+graph LR
+    DOM[DOM Element] -->|WeakMap Key| WM[WeakMap]
+    WM -->|Stores| DATA[Associated Data]
+    DOM -->|Removed| GC[Garbage Collection]
+    GC -->|Auto-cleans| DATA
+```
+
+#### Event Listener Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant C as Component
+    participant E as Element
+    participant H as Handler
+
+    C->>H: Create handler
+    C->>E: addEventListener(handler)
+    C->>C: Store handler reference
+
+    Note over E,H: Active listening phase
+
+    C->>E: removeEventListener(handler)
+    C->>H: Null reference
+    C->>GC: Eligible for collection
+```
+
+For more architectural details, see the [Memory Management Lifecycle diagram in ARCHITECTURE.md](./ARCHITECTURE.md#memory-management-lifecycle).
 
 ## Fixed Memory Issues
 

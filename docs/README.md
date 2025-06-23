@@ -1,95 +1,166 @@
 # VineHelper Documentation
 
-This directory contains architectural and technical documentation for the VineHelper project.
+Welcome to the VineHelper documentation! This guide will help you understand, use, and contribute to the VineHelper browser extension.
 
-## Core Documentation
+## 📚 Documentation Index
 
-### [ARCHITECTURE.md](./ARCHITECTURE.md)
+### Getting Started
 
-Comprehensive overview of the VineHelper architecture, including:
+- [**README**](../README.md) - Project overview and quick start
+- [**Contributing Guide**](./CONTRIBUTING.md) - How to contribute to VineHelper
+- [**Architecture Overview**](./ARCHITECTURE.md) - System design and components
 
-- Current architecture analysis
-- System boundaries and operational modes
-- Notification Monitor architecture details
-- Memory management best practices and fixed issues
-- Dependency injection migration status
-- Implementation guidelines and patterns
-- Technical debt priorities
-- Future improvements roadmap
+### Development
 
-### [CHANGES_AND_FIXES.md](./CHANGES_AND_FIXES.md)
+- [**Testing Guide**](./TESTING.md) - Comprehensive testing documentation
+- [**API Documentation**](./API.md) - WebSocket API and message formats
+- [**Dependency Injection**](./DEPENDENCY_INJECTION_MIGRATION.md) - DI patterns and migration
 
-Consolidated summary of all changes, fixes, and improvements:
+### Operations
 
-- Recent bug fixes and enhancements
-- Feature branch fixes (Fix #1-7)
-- Keyword system improvements
-- Memory management optimizations
-- Architecture improvements
-- Test coverage status
-- Performance metrics
+- [**Memory Management**](./MEMORY_MANAGEMENT.md) - Memory optimization and leak prevention
+- [**Troubleshooting**](./TROUBLESHOOTING.md) - Common issues and solutions
+- [**Browser Compatibility**](./BROWSER_COMPATIBILITY.md) - Cross-browser support
 
-### [MEMORY_MANAGEMENT.md](./MEMORY_MANAGEMENT.md)
+### Planning
 
-Comprehensive memory management documentation:
+- [**Future Improvements**](./FUTURE_IMPROVEMENTS.md) - Roadmap and priorities
 
-- Fixed memory issues and their solutions
-- Current best practices and patterns
-- Memory debugging tools and usage
-- Performance monitoring guidelines
-- Prevention strategies
+## 🏗️ Architecture Diagrams
 
-### [DEPENDENCY_INJECTION_MIGRATION.md](./DEPENDENCY_INJECTION_MIGRATION.md)
+### System Overview
 
-Step-by-step guide for migrating from singleton pattern to dependency injection:
+```mermaid
+graph TB
+    subgraph "VineHelper Extension"
+        BE[Bootloader] --> PM[Page Enhancement]
+        BE --> NM[Notification Monitor]
+        PM --> UI1[Amazon UI Enhancement]
+        NM --> UI2[Custom Interface]
+    end
 
-- Migration strategies (quick, full, custom)
-- Code examples and patterns
-- Testing approaches
-- Troubleshooting guide
+    PM --> AV[Amazon Vine Pages]
+    NM --> WS[WebSocket Server]
+```
 
-### [DEBUG_SETTINGS_USAGE.md](./DEBUG_SETTINGS_USAGE.md)
+### Quick Links by Topic
 
-Comprehensive guide to all debug settings:
+#### For Users
 
-- Complete list of debug settings and their purposes
-- Usage examples and code snippets
-- Settings configuration and initialization
-- Periodic count verification feature
+1. [Installation Guide](../README.md#testing--installing-manually)
+2. [Troubleshooting Common Issues](./TROUBLESHOOTING.md)
+3. [Browser Compatibility](./BROWSER_COMPATIBILITY.md)
 
-### [FUTURE_IMPROVEMENTS.md](./FUTURE_IMPROVEMENTS.md)
+#### For Developers
 
-Tracking of planned improvements and optimizations:
+1. [Development Setup](./CONTRIBUTING.md#development-setup)
+2. [Code Standards](./CONTRIBUTING.md#code-standards)
+3. [Testing Requirements](./TESTING.md)
+4. [Architecture Patterns](./ARCHITECTURE.md)
 
-- Performance optimizations
-- Architectural improvements
-- Code quality improvements
-- Implementation priorities
+#### For Contributors
 
-## Archived Documentation
+1. [Pull Request Process](./CONTRIBUTING.md#pull-request-process)
+2. [Testing Guide](./TESTING.md)
+3. [Code Review Checklist](./CONTRIBUTING.md#code-review-checklist)
 
-Older documentation files have been moved to the `archived/` directory. These contain historical context and detailed implementation notes that may be useful for reference but are not part of the active documentation set.
+## 📊 Key Concepts
 
-## Related Documentation
+### Memory Management
 
-- **Infrastructure Components**: See [`../scripts/infrastructure/README.md`](../scripts/infrastructure/README.md) for DI container and storage adapters
-- **Project README**: See the root [`../README.md`](../README.md) for general project information
+VineHelper implements strict memory management to prevent leaks:
 
-## Documentation Standards
+- Every component has a `destroy()` method
+- WeakMaps for DOM associations
+- Automatic cleanup of event listeners
+- [Learn more →](./MEMORY_MANAGEMENT.md)
 
-When adding new documentation:
+### Multi-Tab Coordination
 
-1. Use clear, descriptive filenames
-2. Include a table of contents for longer documents
-3. Provide code examples where applicable
-4. Keep documentation up-to-date with implementation changes
-5. Cross-reference related documents
+The extension uses a master/slave architecture:
 
-## Contributing
+- One tab handles server communication
+- Other tabs receive updates via BroadcastChannel
+- Automatic failover on master disconnect
+- [Learn more →](./ARCHITECTURE.md#multi-tab-coordination)
 
-When making architectural changes or adding new patterns:
+### Performance Optimizations
 
-1. Update the relevant documentation
-2. Add examples to migration guides
-3. Update the implementation status in ARCHITECTURE.md
-4. Ensure all code examples are tested and working
+Key performance features:
+
+- Keyword caching (15x improvement)
+- Stream processing optimization (95% memory reduction)
+- Batch DOM operations
+- [Learn more →](./MEMORY_MANAGEMENT.md#performance-issues)
+
+## 🔍 Finding Information
+
+### By Component
+
+- **Notification Monitor**: [Architecture](./ARCHITECTURE.md#notification-monitor-architecture)
+- **Settings Manager**: [DI Migration](./DEPENDENCY_INJECTION_MIGRATION.md)
+- **WebSocket**: [API Docs](./API.md#connection-management)
+- **Grid System**: [Architecture](./ARCHITECTURE.md#ui-components)
+
+### By Task
+
+- **Fix a bug**: Start with [Troubleshooting](./TROUBLESHOOTING.md)
+- **Add a feature**: Read [Architecture](./ARCHITECTURE.md) and [Contributing](./CONTRIBUTING.md)
+- **Improve performance**: See [Memory Management](./MEMORY_MANAGEMENT.md)
+- **Write tests**: Follow [Testing Guide](./TESTING.md)
+
+### By Technology
+
+- **JavaScript/ES6+**: [Code Standards](./CONTRIBUTING.md#code-standards)
+- **Browser APIs**: [Compatibility Guide](./BROWSER_COMPATIBILITY.md)
+- **WebSockets**: [API Documentation](./API.md)
+- **Testing**: [Testing Guide](./TESTING.md)
+
+## 📈 Documentation Status
+
+### Recently Updated
+
+- ✅ Architecture diagrams added
+- ✅ Comprehensive API documentation
+- ✅ Testing guide with examples
+- ✅ Troubleshooting guide
+- ✅ Browser compatibility matrix
+
+### In Progress
+
+- 🔧 Dependency injection migration
+- 🔧 Additional architecture diagrams
+- 🔧 Video tutorials
+
+### Planned
+
+- 📋 User guide with screenshots
+- 📋 Performance tuning guide
+- 📋 Security best practices
+
+## 🤝 Contributing to Documentation
+
+We welcome documentation improvements! Here's how to help:
+
+1. **Fix typos or clarify**: Direct PR
+2. **Add examples**: Include working code
+3. **New guides**: Discuss in issue first
+4. **Diagrams**: Use Mermaid syntax
+
+See [Contributing Guide](./CONTRIBUTING.md) for details.
+
+## 📞 Getting Help
+
+- **GitHub Issues**: [Report problems](https://github.com/FMaz008/VineHelper/issues)
+- **Discussions**: [Ask questions](https://github.com/FMaz008/VineHelper/discussions)
+- **Documentation issues**: Tag with `documentation`
+
+## 🔗 External Resources
+
+- [Chrome Extension Docs](https://developer.chrome.com/docs/extensions/)
+- [Firefox Add-on Docs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons)
+- [MDN Web APIs](https://developer.mozilla.org/en-US/docs/Web/API)
+
+---
+
+_Last updated: January 2024_

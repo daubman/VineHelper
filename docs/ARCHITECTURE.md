@@ -4,6 +4,40 @@
 
 VineHelper is a browser extension that enhances the Amazon Vine experience. The codebase reveals several architectural patterns and areas for improvement.
 
+## System Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Browser Extension"
+        BE[Bootloader<br/>Entry Point]
+        PM[Page Enhancement Mode<br/>RFY/AFA/AI Pages]
+        NM[Notification Monitor<br/>Custom UI]
+    end
+
+    subgraph "Core Services"
+        SM[SettingsMgr<br/>+ DI Layer]
+        HM[HookMgr<br/>Event System]
+        IM[ItemsMgr<br/>Data Store]
+        VM[VisibilityStateManager<br/>UI State]
+    end
+
+    subgraph "External"
+        WS[WebSocket Server<br/>api.vinehelper.ovh]
+        AV[Amazon Vine<br/>Pages]
+    end
+
+    BE --> PM
+    BE --> NM
+    PM --> AV
+    NM --> WS
+    PM --> SM
+    NM --> SM
+    PM --> HM
+    NM --> HM
+    NM --> IM
+    NM --> VM
+```
+
 ## Current Architecture
 
 ### Core Components
@@ -102,6 +136,27 @@ The notification monitor uses a master-slave pattern for multi-tab coordination:
 - Other tabs act as "slaves" and display data received from the master
 - Coordination happens via BroadcastChannel API
 
+```mermaid
+stateDiagram-v2
+    [*] --> CheckBroadcastChannel
+    CheckBroadcastChannel --> SingleTabMode: Not Available
+    CheckBroadcastChannel --> ElectionPhase: Available
+
+    ElectionPhase --> Master: No Other Tabs
+    ElectionPhase --> Slave: Master Exists
+
+    Master --> KeepAlive: Every 1s
+    KeepAlive --> Master
+    Master --> HandleCrash: Tab Closes
+
+    Slave --> MonitorMaster: Check Every 2s
+    MonitorMaster --> Slave: Master Active
+    MonitorMaster --> ElectionPhase: Master Dead
+
+    HandleCrash --> [*]
+    SingleTabMode --> [*]
+```
+
 #### Design Trade-offs
 
 1. **Item Count Synchronization**: Each tab maintains its own count to avoid complex state sync. This means counts may differ between tabs, but actual item processing is properly coordinated.
@@ -163,6 +218,20 @@ Master Monitor (V3)
     Slave Monitors (V2)
 ```
 
+#### Notification Processing Pipeline
+
+```mermaid
+graph LR
+    WS[WebSocket] --> SC[ServerCom]
+    SC --> DS[DataStream<br/>Streamy.js]
+    DS --> FH[FilterHandler<br/>Hide/Show Logic]
+    FH --> TH[TransformHandler<br/>Keywords/Blur]
+    TH --> OH[OutputHandler]
+    OH --> BC[BroadcastChannel]
+    OH --> PN[Push Notifications]
+    BC --> UI[UI Update]
+```
+
 #### 4. Visibility Management
 
 **VisibilityStateManager**
@@ -189,6 +258,33 @@ Key features:
 5. **Stream Processing**: Handles large item batches efficiently
 
 ## Memory Management
+
+### Memory Management Lifecycle
+
+```mermaid
+graph TD
+    subgraph "Creation Phase"
+        CI[Component Init] --> RL[Register Listeners]
+        RL --> ST[Store References]
+    end
+
+    subgraph "Active Phase"
+        ST --> EU[Event Updates]
+        EU --> CC[Cache Check]
+        CC -->|Hit| UC[Use Cached]
+        CC -->|Miss| CR[Create/Compute]
+        CR --> SC[Store in Cache]
+    end
+
+    subgraph "Cleanup Phase"
+        UC --> CD[Component Destroy]
+        SC --> CD
+        CD --> RL2[Remove Listeners]
+        RL2 --> CT[Clear Timers]
+        CT --> NR[Null References]
+        NR --> GC[Garbage Collection]
+    end
+```
 
 ### Fixed Issues
 
@@ -272,6 +368,25 @@ The dependency injection refactoring introduces:
 - Storage adapters for testability (`StorageAdapter.js`)
 - A refactored SettingsMgr that accepts dependencies (`SettingsMgrDI.js`)
 - A compatibility layer for gradual migration (`SettingsMgrCompat.js`)
+
+### Dependency Injection Flow
+
+```mermaid
+graph TD
+    DI[DIContainer] --> REG[Register Services]
+    REG --> |Singleton| SS[Singleton Store]
+    REG --> |Transient| TS[Transient Factory]
+
+    RES[Resolve Request] --> CHK{Check Type}
+    CHK -->|Singleton Exists| RSS[Return Singleton]
+    CHK -->|Singleton New| CRS[Create & Store]
+    CHK -->|Transient| CRT[Create New]
+
+    CRS --> RSS
+    CRT --> INJ[Inject Dependencies]
+    RSS --> USE[Use Service]
+    INJ --> USE
+```
 
 ### Migration Status
 

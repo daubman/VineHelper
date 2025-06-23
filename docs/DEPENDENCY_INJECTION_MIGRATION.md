@@ -183,7 +183,7 @@ Review your dependency graph and consider using factory functions or lazy loadin
 
 ## Recommended Next Steps
 
-For a detailed implementation roadmap with code examples and specific tasks, see [DI_IMPLEMENTATION_ROADMAP.md](./DI_IMPLEMENTATION_ROADMAP.md).
+**Note**: The DI_IMPLEMENTATION_ROADMAP.md document was archived as the dependency injection migration has been largely completed. The roadmap served its purpose during the initial implementation phase and is no longer actively maintained.
 
 ### Quick Overview:
 
