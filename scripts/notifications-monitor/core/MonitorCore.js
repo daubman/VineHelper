@@ -26,7 +26,7 @@ import { ServerCom } from "/scripts/notifications-monitor/stream/ServerCom.js";
 import { ItemsMgr } from "/scripts/notifications-monitor/services/ItemsMgr.js";
 import { Websocket } from "/scripts/notifications-monitor/stream/Websocket.js";
 import { AutoLoad } from "/scripts/notifications-monitor/stream/AutoLoad.js";
-import { MasterSlave } from "/scripts/notifications-monitor/coordination/MasterSlave.js";
+import { RobustMasterSlave } from "/scripts/notifications-monitor/coordination/RobustMasterSlave.js";
 import { SoundCoordinator } from "/scripts/notifications-monitor/coordination/SoundCoordinator.js";
 
 class MonitorCore {
@@ -78,7 +78,7 @@ class MonitorCore {
 		this._soundPlayerMgr = new NotificationsSoundPlayer();
 		this._soundCoordinator = new SoundCoordinator(this._soundPlayerMgr, this._settings);
 		this._hookMgr = new HookMgr();
-		this._masterSlave = new MasterSlave(this);
+		this._masterSlave = new RobustMasterSlave(this);
 
 		if (this._env.data.gridDOM) {
 			//v3
